@@ -78,6 +78,7 @@ public class FileUtils {
 			FileWriter writer = new FileWriter(file);
 			
 			writer.write(content);
+			logger.info("writing file to " + path);
 			
 			writer.close();
 		} catch (IOException e) {

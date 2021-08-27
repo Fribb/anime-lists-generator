@@ -21,14 +21,18 @@ public class CommonUtils {
 	private static Logger logger = Logger.getLogger(CommonUtils.class);
 	
 	private String animeListsUrl 			= "https://raw.githubusercontent.com/Anime-Lists/anime-lists/master/anime-list-full.xml";
-	private String animeOfflineDatabaseUrl 	= "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
-	private HashMap<String, String> animeOfflineDatabaseSources = new HashMap<String, String>();
+	private String animeOfflineDbUrl 	= "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
+	private String condensedAnimOfflineDBFileName =  "anime-offline-database-reduced.json";
+	private String condensedAnimeListsFileName = "anime-lists-reduced.json";
+	private HashMap<String, String> animeOfflineDbSources = new HashMap<String, String>();
+	private HashMap<String, String> animeListSources = new HashMap<String, String>();
+
 	
 	/**
 	 * 
 	 */
 	public CommonUtils() {
-		this.initAODSources();
+		this.initAnimeOfflineDbSources();
 	}
 
 	/**
@@ -40,22 +44,27 @@ public class CommonUtils {
 	/**
 	 * @return the animeOfflineDatabase
 	 */
-	public String getAnimeOfflineDatabaseUrl() {
-		return this.animeOfflineDatabaseUrl;
+	public String getAnimeOfflineDbUrl() {
+		return this.animeOfflineDbUrl;
 	}
 	
 	/**
 	 * initialize the Anime-Offline-Database sources
 	 */
-	private void initAODSources() {
-		this.animeOfflineDatabaseSources.put("anidb.net", "anidb");
-		this.animeOfflineDatabaseSources.put("anilist.co", "anilist");
-		this.animeOfflineDatabaseSources.put("anime-planet.com", "anime-planet"); // anime-planet does not have an ID as integer value but rather uses the title
-		this.animeOfflineDatabaseSources.put("anisearch.com", "anisearch");
-		this.animeOfflineDatabaseSources.put("kitsu.io", "kitsu");
-		this.animeOfflineDatabaseSources.put("livechart.me", "livechart");
-		this.animeOfflineDatabaseSources.put("myanimelist.net", "mal");
-		this.animeOfflineDatabaseSources.put("notify.moe", "notify.moe"); // notify.moe does not use an ID as integer value but rather uses a hash
+	private void initAnimeOfflineDbSources() {
+		this.animeOfflineDbSources.put("anidb.net", "anidb");
+		this.animeOfflineDbSources.put("anilist.co", "anilist");
+		this.animeOfflineDbSources.put("anime-planet.com", "anime-planet"); // anime-planet does not have an ID as integer value but rather uses the title
+		this.animeOfflineDbSources.put("anisearch.com", "anisearch");
+		this.animeOfflineDbSources.put("kitsu.io", "kitsu");
+		this.animeOfflineDbSources.put("livechart.me", "livechart");
+		this.animeOfflineDbSources.put("myanimelist.net", "mal");
+		this.animeOfflineDbSources.put("notify.moe", "notify.moe"); // notify.moe does not use an ID as integer value but rather uses a hash
+		
+		this.animeListSources.put("anidbid", "anidb");
+		this.animeListSources.put("tvdbid", "thetvdb");
+		this.animeListSources.put("tmdbid", "themoviedb");
+		this.animeListSources.put("imdbid", "imdb");
 	}
 	
 	/**
@@ -64,7 +73,39 @@ public class CommonUtils {
 	 * @param key
 	 * @return value
 	 */
-	public String getAODShortSource(String key) {
-		return this.animeOfflineDatabaseSources.get(key);
+	public String getAnimeOfflineDbShortSource(String key) {
+		return this.animeOfflineDbSources.get(key);
+	}
+	
+	/**
+	 * get the short version for the anime-lists key
+	 * 
+	 * @param key
+	 * @return value
+	 */
+	public String getAnimeListsShortSource(String key) {
+		return this.animeListSources.get(key);
+	}
+	
+	/**
+	 * get the complete file path for the condensed Anime-Offline-Database
+	 *  
+	 * @return
+	 */
+	public String getAnimeOfflineDbFilePath() {
+		String path = PropertyUtils.getPropertyValue(PropertyUtils.PATH);
+		
+		return path + File.separator + this.condensedAnimOfflineDBFileName;
+	}
+
+	/**
+	 * get the complete file path for the condensed anime-lists
+	 * 
+	 * @return
+	 */
+	public String getAnimeListsFilePath() {
+		String path = PropertyUtils.getPropertyValue(PropertyUtils.PATH);
+		
+		return path + File.separator + this.condensedAnimeListsFileName;
 	}
 }
