@@ -10,14 +10,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Fribb
  *
  */
 public class HTTPUtils {
-	private static Logger logger = Logger.getLogger(HTTPUtils.class);
+	private static Logger logger = LogManager.getLogger(HTTPUtils.class);
 
 	/**
 	 * Return the content of a response

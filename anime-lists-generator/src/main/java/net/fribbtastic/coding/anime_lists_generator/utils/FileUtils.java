@@ -10,14 +10,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Fribb
  *
  */
 public class FileUtils {
-	private static Logger logger = Logger.getLogger(FileUtils.class);
+	private static Logger logger = LogManager.getLogger(FileUtils.class);
 
 	/**
 	 * read the content of a file and return it as a String

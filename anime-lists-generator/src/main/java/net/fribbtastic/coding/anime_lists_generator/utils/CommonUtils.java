@@ -4,21 +4,17 @@
 package net.fribbtastic.coding.anime_lists_generator.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Fribb
  *
  */
 public class CommonUtils {
-	private static Logger logger = Logger.getLogger(CommonUtils.class);
+	private static Logger logger = LogManager.getLogger(CommonUtils.class);
 	
 	private String animeListsUrl 			= "https://raw.githubusercontent.com/Anime-Lists/anime-lists/master/anime-list-full.xml";
 	private String animeOfflineDbUrl 	= "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";

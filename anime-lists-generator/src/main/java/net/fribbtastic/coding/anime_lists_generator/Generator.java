@@ -5,11 +5,10 @@ package net.fribbtastic.coding.anime_lists_generator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -22,7 +21,7 @@ import net.fribbtastic.coding.anime_lists_generator.utils.PropertyUtils;
  *
  */
 public class Generator {
-	private static Logger logger = Logger.getLogger(Generator.class);
+	private static Logger logger = LogManager.getLogger(Generator.class);
 
 	private CommonUtils commonUtils;
 
