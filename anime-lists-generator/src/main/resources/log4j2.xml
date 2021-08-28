@@ -19,7 +19,7 @@
 	</Appenders>
 
 	<Loggers>
-		<Root level="debug">
+		<Root level="INFO">
 			<AppenderRef ref="STDOUT" />
 			<AppenderRef ref="File"/>
 		</Root>
