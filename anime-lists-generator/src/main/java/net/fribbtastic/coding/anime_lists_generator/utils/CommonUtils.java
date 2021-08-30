@@ -16,8 +16,8 @@ import org.apache.logging.log4j.Logger;
 public class CommonUtils {
 	private static Logger logger = LogManager.getLogger(CommonUtils.class);
 	
-	private String animeListsUrl 			= "https://raw.githubusercontent.com/Anime-Lists/anime-lists/master/anime-list-full.xml";
-	private String animeOfflineDbUrl 	= "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
+	private String animeListsUrl = "https://raw.githubusercontent.com/ScudLee/anime-lists/master/anime-list-full.xml";
+	private String animeOfflineDbUrl = "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
 	private String condensedAnimOfflineDBFileName =  "anime-offline-database-reduced.json";
 	private String condensedAnimeListsFileName = "anime-lists-reduced.json";
 	private HashMap<String, String> animeOfflineDbSources = new HashMap<String, String>();

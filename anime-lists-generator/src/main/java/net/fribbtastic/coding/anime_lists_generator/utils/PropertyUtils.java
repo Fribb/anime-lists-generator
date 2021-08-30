@@ -27,8 +27,11 @@ public class PropertyUtils {
 	// location of the properties file
 	private static String FILE = "config.properties";
 
-	// property keys
+	// property for the path to the anime-lists folder
 	public static String PATH = "project.path";
+	
+	// property for the TheMovieDB API key
+	public static String THEMOVIEDBAPIKEY = "project.apikey.themoviedb";
 
 	/**
 	 * Get the value of a given key

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.fribbtastic.coding.anime_lists_generator;
+package net.fribbtastic.coding.anime_lists_generator.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

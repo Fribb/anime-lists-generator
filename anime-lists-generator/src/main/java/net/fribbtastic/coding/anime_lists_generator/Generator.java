@@ -6,6 +6,7 @@ package net.fribbtastic.coding.anime_lists_generator;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -14,7 +15,9 @@ import org.json.XML;
 
 import net.fribbtastic.coding.anime_lists_generator.utils.CommonUtils;
 import net.fribbtastic.coding.anime_lists_generator.utils.FileUtils;
+import net.fribbtastic.coding.anime_lists_generator.utils.HTTPUtils;
 import net.fribbtastic.coding.anime_lists_generator.utils.PropertyUtils;
+import net.fribbtastic.coding.anime_lists_generator.utils.TheMovieDBUtils;
 
 /**
  * @author Fribb
@@ -60,10 +63,61 @@ public class Generator {
 			
 			JSONArray animeListParsed = this.parseAnimeLists(animelistElem.getJSONArray("anime"));
 			
+			this.cleanUpAnimeList(animeListParsed);
+			
 			FileUtils.writeFile(animeListParsed.toString(), this.commonUtils.getAnimeListsFilePath());
 		} else {
 			logger.error("There was an error requesting the anime-lists");
 			return;
+		}
+	}
+	
+	/**
+	 * cleaning up the anime-lists JSON Array.
+	 * this is necessary because the TheTVDB Id is not a valid ID in the ScudLee anime-lists project but can contain
+	 * movie, OVA, hentai, tv special, unknown and possibly other things as well.
+	 * 
+	 * But since we only want to have IDs (or some value to say that this is "invalid" or "unkown" like '-1')
+	 * we need to clean this up.
+	 * 
+	 * TheMovieDB provides an API endpoint for External IDs that can either be requested for a specific tmdb ID or searched for.
+	 * 
+	 * The conditions are:
+	 * 
+	 * 1. tvdb ID is an Integer and there is no tmdb ID -> search for tvdb Id on tmdb API and add tmdb ID to dataset
+	 * 2. tvdb ID is not an Integer and there is a tmdb ID -> lookup external IDs for tmdb ID and add tvdb ID to dataset
+	 * 3. tvdb ID is not an Integer and there is no tmdb ID -> set tvdb and tmdb IDs to -1
+	 * 
+	 * @param animeListParsed
+	 */
+	private void cleanUpAnimeList(JSONArray animeListParsed) {
+		logger.info("cleaning up generated list from anime-lists");
+		String tvdbName = this.commonUtils.getAnimeListsShortSource("tvdbid") + "_id";
+		String tmdbName = this.commonUtils.getAnimeListsShortSource("tmdbid") + "_id";
+		
+		for (Object item : animeListParsed) {
+			JSONObject animeIds = (JSONObject) item;
+			
+			// the tvdb ID is an Integer then we could use it to lookup the tmdb ID if not already available
+			if (animeIds.get(tvdbName) instanceof Integer) {
+				logger.debug("TVDB ID is an Integer");
+				Integer tvdbId = animeIds.getInt(tvdbName);
+				
+				if (animeIds.has(tmdbName)) {
+					logger.debug("TMDB ID is available - nothing to do here");
+				} else {
+					logger.debug("TMDB ID is not available - looking up");
+					
+					Integer tmdbId = TheMovieDBUtils.lookupTmdbId(tvdbId, "tvdb_id", "tv_results");
+					logger.info("adding tmbdid (" + tmdbId + ")");
+					animeIds.put(tmdbName, tmdbId);
+				}
+			} else if (animeIds.get(tvdbName) instanceof String) {
+				logger.debug("TVDB ID is a String");
+				// TODO:
+			} else {
+				logger.warn("TVDB ID is neither an Integer nor a String");
+			}
 		}
 	}
 
@@ -95,8 +149,15 @@ public class Generator {
 					String id = path.substring(path.lastIndexOf("/") + 1);
 
 					String shortSource = this.commonUtils.getAnimeOfflineDbShortSource(host);
-
-					newItem.put(shortSource + "_id", id);
+					
+					// if the ID is an integer then add an integer to the newItem
+					if (NumberUtils.isCreatable(id)) {
+						Integer intId = NumberUtils.createInteger(id);
+						
+						newItem.put(shortSource + "_id", intId);
+					} else {
+						newItem.put(shortSource + "_id", id);
+					}
 
 				} catch (MalformedURLException e) {
 					logger.warn("Url (" + source + ") was Malformed, skipping", e);
