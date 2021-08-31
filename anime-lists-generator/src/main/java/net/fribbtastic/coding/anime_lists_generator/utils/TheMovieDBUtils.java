@@ -32,15 +32,15 @@ public class TheMovieDBUtils {
 	/**
 	 * lookup the TMDB ID with a TVDB ID
 	 * 
-	 * @param tvdbId
+	 * @param id
 	 * @param source
 	 * @return
 	 */
-	public static Integer lookupTmdbId(Integer tvdbId, String source, String resultsName) {
-		logger.info("looking up tvdbid (" + tvdbId + ") on TheMovieDB");
+	public static Integer lookupTmdbId(Object id, String source, String resultsName) {
+		logger.info("looking up external " + source +" (" + id + ") on TheMovieDB");
 		
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("tvdbid", tvdbId.toString());
+		data.put("tvdbid", id.toString());
 		data.put("api_key", PropertyUtils.getPropertyValue(PropertyUtils.THEMOVIEDBAPIKEY));
 		data.put("source", source);
 		

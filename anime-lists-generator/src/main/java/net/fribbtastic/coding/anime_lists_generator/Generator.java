@@ -94,11 +94,12 @@ public class Generator {
 		logger.info("cleaning up generated list from anime-lists");
 		String tvdbName = this.commonUtils.getAnimeListsShortSource("tvdbid") + "_id";
 		String tmdbName = this.commonUtils.getAnimeListsShortSource("tmdbid") + "_id";
+		String imdbName = this.commonUtils.getAnimeListsShortSource("imdbid") + "_id";
 		
 		for (Object item : animeListParsed) {
 			JSONObject animeIds = (JSONObject) item;
 			
-			// the tvdb ID is an Integer then we could use it to lookup the tmdb ID if not already available
+			// the tvdb ID is an Integer that we can use it to lookup the tmdb ID if not already available
 			if (animeIds.get(tvdbName) instanceof Integer) {
 				logger.debug("TVDB ID is an Integer");
 				Integer tvdbId = animeIds.getInt(tvdbName);
@@ -114,7 +115,22 @@ public class Generator {
 				}
 			} else if (animeIds.get(tvdbName) instanceof String) {
 				logger.debug("TVDB ID is a String");
-				// TODO:
+				
+				if (animeIds.has(imdbName) && !animeIds.has(tmdbName)) {
+					logger.debug("IMDB ID is available - looking up TMDB ID");
+					
+					String imdbId = animeIds.getString(imdbName);
+					
+					if (imdbId.startsWith("tt")) {
+						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
+						logger.info("adding tmdbid (" + tmdbId + ")");
+						animeIds.put(tmdbName, imdbId);
+					} else {
+						logger.debug("IMDB ID was not a correct ID (" + imdbId + ")");
+					}
+				} else {
+					logger.debug("IMDB ID is not available - can't do anything here");
+				}
 			} else {
 				logger.warn("TVDB ID is neither an Integer nor a String");
 			}
