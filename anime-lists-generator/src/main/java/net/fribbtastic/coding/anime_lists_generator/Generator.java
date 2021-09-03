@@ -114,7 +114,10 @@ public class Generator {
 					animeIds.put(tmdbName, tmdbId);
 				}
 			} else if (animeIds.get(tvdbName) instanceof String) {
-				logger.debug("TVDB ID is a String");
+				logger.debug("TVDB ID is a String (" + animeIds.getString(tvdbName) + ")");
+				
+				// remove invalid ID
+				animeIds.remove(tvdbName);
 				
 				if (animeIds.has(imdbName) && !animeIds.has(tmdbName)) {
 					logger.debug("IMDB ID is available - looking up TMDB ID");
@@ -124,12 +127,13 @@ public class Generator {
 					if (imdbId.startsWith("tt")) {
 						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
 						logger.info("adding tmdbid (" + tmdbId + ")");
-						animeIds.put(tmdbName, imdbId);
+						animeIds.put(tmdbName, tmdbId);
 					} else {
-						logger.debug("IMDB ID was not a correct ID (" + imdbId + ")");
+						logger.warn("IMDB ID was not a correct ID (" + imdbId + ")");
 					}
+					
 				} else {
-					logger.debug("IMDB ID is not available - can't do anything here");
+					logger.warn("IMDB ID is not available - can't do anything here");
 				}
 			} else {
 				logger.warn("TVDB ID is neither an Integer nor a String");
@@ -206,7 +210,7 @@ public class Generator {
 				if (shortSource != null) {
 					newItem.put(shortSource + "_id", animeItem.get(keyString));
 				} else {
-					logger.debug(keyString + " not available in map");
+					logger.trace(keyString + " not available in map");
 				}
 			}
 			

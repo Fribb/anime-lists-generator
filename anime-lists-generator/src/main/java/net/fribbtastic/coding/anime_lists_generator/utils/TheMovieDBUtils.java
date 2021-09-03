@@ -37,7 +37,7 @@ public class TheMovieDBUtils {
 	 * @return
 	 */
 	public static Integer lookupTmdbId(Object id, String source, String resultsName) {
-		logger.info("looking up external " + source +" (" + id + ") on TheMovieDB");
+		logger.info("looking up TheMovieDB ID for " + source + " (" + id + ") with " + resultsName);
 		
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("tvdbid", id.toString());
