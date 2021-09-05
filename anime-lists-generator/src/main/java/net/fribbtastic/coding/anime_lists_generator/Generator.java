@@ -109,9 +109,20 @@ public class Generator {
 				} else {
 					logger.debug("TMDB ID is not available - looking up");
 					
-					Integer tmdbId = TheMovieDBUtils.lookupTmdbId(tvdbId, "tvdb_id", "tv_results");
-					logger.info("adding tmbdid (" + tmdbId + ")");
-					animeIds.put(tmdbName, tmdbId);
+					// in rare cases, the anime-list can contain both an TVDB ID and IMDB ID
+					// if it has a IMDB ID then we can consider it a movie and need to look it up as a movie
+					if(animeIds.has(imdbName)) {
+						String imdbId = animeIds.getString(imdbName);
+						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
+						logger.info("adding tmbdid (" + tmdbId + ")");
+						animeIds.put(tmdbName, tmdbId);
+					} else {
+						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(tvdbId, "tvdb_id", "tv_results");
+						logger.info("adding tmbdid (" + tmdbId + ")");
+						animeIds.put(tmdbName, tmdbId);
+					}
+					
+					
 				}
 			} else if (animeIds.get(tvdbName) instanceof String) {
 				logger.debug("TVDB ID is a String (" + animeIds.getString(tvdbName) + ")");
