@@ -9,6 +9,7 @@ import java.net.URL;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileCount;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -112,10 +113,14 @@ public class Generator {
 					// in rare cases, the anime-list can contain both an TVDB ID and IMDB ID
 					// if it has a IMDB ID then we can consider it a movie and need to look it up as a movie
 					if(animeIds.has(imdbName)) {
-						String imdbId = animeIds.getString(imdbName);
-						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
-						logger.info("adding tmbdid (" + tmdbId + ")");
-						animeIds.put(tmdbName, tmdbId);
+						if(animeIds.get(imdbName).toString().startsWith("tt")) {
+							String imdbId = animeIds.getString(imdbName);
+							Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
+							logger.info("adding tmbdid (" + tmdbId + ")");
+							animeIds.put(tmdbName, tmdbId);
+						} else {
+							logger.warn("IMDB ID was available but not a string (should start with tt)");
+						}
 					} else {
 						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(tvdbId, "tvdb_id", "tv_results");
 						logger.info("adding tmbdid (" + tmdbId + ")");
