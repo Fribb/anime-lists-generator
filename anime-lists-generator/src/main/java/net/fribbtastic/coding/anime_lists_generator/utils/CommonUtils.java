@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class CommonUtils {
-	private static Logger logger = LogManager.getLogger(CommonUtils.class);
 	
 	private String animeListsUrl = "https://raw.githubusercontent.com/ScudLee/anime-lists/master/anime-list-full.xml";
 	private String animeOfflineDbUrl = "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
