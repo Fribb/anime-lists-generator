@@ -171,6 +171,10 @@ public class Generator {
 		for (Object item : data) {
 			JSONObject animeItem = (JSONObject) item;
 			JSONObject newItem = new JSONObject();
+			
+			if (animeItem.has("type")) {
+				newItem.put("type", animeItem.getString("type"));
+			}
 
 			JSONArray sources = animeItem.getJSONArray("sources");
 
