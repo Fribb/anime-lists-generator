@@ -11,9 +11,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileCount;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 
+import jdk.internal.org.jline.utils.Log;
 import net.fribbtastic.coding.anime_lists_generator.utils.CommonUtils;
 import net.fribbtastic.coding.anime_lists_generator.utils.FileUtils;
 import net.fribbtastic.coding.anime_lists_generator.utils.HTTPUtils;
@@ -39,16 +41,18 @@ public class Generator {
 	 */
 	public void generate() {
 		logger.info("starting generating anime-lists");
+		JSONArray animeOfflineDatabase;
+		JSONArray animeLists;
 
 		// Request the Anime-Offline-Database to parse it into a more condensed format
 		String animeOfflineDatabaseResponse = HTTPUtils.getResponse(this.commonUtils.getAnimeOfflineDbUrl());
 
 		if (animeOfflineDatabaseResponse != null) {
-			JSONObject animeOfflineDatabase = new JSONObject(animeOfflineDatabaseResponse);
+			JSONObject animeOfflineDatabaseObject = new JSONObject(animeOfflineDatabaseResponse);
 
-			JSONArray aodParsed = this.parseAnimeOfflineDatabase(animeOfflineDatabase.getJSONArray("data"));
+			animeOfflineDatabase = this.parseAnimeOfflineDatabase(animeOfflineDatabaseObject.getJSONArray("data"));
 
-			FileUtils.writeFile(aodParsed.toString(), this.commonUtils.getAnimeOfflineDbFilePath());
+			FileUtils.writeFile(animeOfflineDatabase.toString(), this.commonUtils.getAnimeOfflineDbFilePath());
 		} else {
 			logger.error("There was an error requesting the Anime-Offline-Database");
 			return;
@@ -59,19 +63,116 @@ public class Generator {
 
 		if (animelistResponse != null) {
 			
-			JSONObject animeListJson = XML.toJSONObject(animelistResponse);
-			JSONObject animelistElem = animeListJson.getJSONObject("anime-list");
+			JSONObject animeListObject = XML.toJSONObject(animelistResponse);
+			JSONObject animelistElem = animeListObject.getJSONObject("anime-list");
 			
-			JSONArray animeListParsed = this.parseAnimeLists(animelistElem.getJSONArray("anime"));
+			animeLists = this.parseAnimeLists(animelistElem.getJSONArray("anime"));
 			
-			this.cleanUpAnimeList(animeListParsed);
+//			this.cleanUpAnimeList(animeListParsed);
 			
-			FileUtils.writeFile(animeListParsed.toString(), this.commonUtils.getAnimeListsFilePath());
+			FileUtils.writeFile(animeLists.toString(), this.commonUtils.getAnimeListsFilePath());
 		} else {
 			logger.error("There was an error requesting the anime-lists");
 			return;
 		}
+		
+		// merge the elements
+		JSONArray fullList = this.mergeLists(animeOfflineDatabase, animeLists);
+		FileUtils.writeFile(fullList.toString(), this.commonUtils.getAnimeListFullFilePath());
 	}
+	
+	/**
+	 * merge both lists
+	 * 
+	 * @param animeOfflineDatabase
+	 * @param animeLists
+	 */
+	private JSONArray mergeLists(JSONArray animeOfflineDatabase, JSONArray animeLists) {
+		logger.info("Merging lists");
+		String anidbName = this.commonUtils.getAnimeListsShortSource("anidbid") + "_id";
+		String imdbName = this.commonUtils.getAnimeListsShortSource("imdbid") + "_id";
+		String tmdbName = this.commonUtils.getAnimeListsShortSource("tmdbid") + "_id";
+		JSONArray result = new JSONArray();
+		
+		for (Object item : animeOfflineDatabase) {
+			JSONObject animeItem = (JSONObject) item;
+			
+			if (animeItem.has(anidbName)) {
+				Integer anidbId = animeItem.getInt(anidbName);
+				
+				// get the IDs from the anime-lists
+				JSONObject additionalIds = this.getIds(anidbId, animeLists);
+				
+				for(String addIdsKey : additionalIds.keySet()) {
+					animeItem.put(addIdsKey, additionalIds.get(addIdsKey));
+				}
+				
+				// lookup tmdb ID if not already available
+				String type = animeItem.getString("type");
+				if (type.equals("MOVIE")) {
+					
+					// only request the TMDB ID if it has a IMDB ID and not a TMDB ID 
+					if (animeItem.has(imdbName) && !animeItem.has(tmdbName)) {
+						String imdbId = animeItem.getString(imdbName);
+						Integer tmdbId = TheMovieDBUtils.lookupTmdbId(imdbId, "imdb_id", "movie_results");
+						if(tmdbId != -1) {
+							animeItem.put(tmdbName, tmdbId);
+						}
+					}
+				}
+			}
+			
+			result.put(animeItem);
+		}
+		
+		return result;
+	}
+	
+	private JSONObject getIds(Integer id, JSONArray animeLists) {
+		String anidbName = this.commonUtils.getAnimeListsShortSource("anidbid") + "_id";
+		String tvdbName = this.commonUtils.getAnimeListsShortSource("tvdbid") + "_id";
+		String tmdbName = this.commonUtils.getAnimeListsShortSource("tmdbid") + "_id";
+		String imdbName = this.commonUtils.getAnimeListsShortSource("imdbid") + "_id";
+		JSONObject result = new JSONObject();
+		
+		for (Object item : animeLists) {
+			JSONObject animeItem = (JSONObject) item;
+			
+			if (animeItem.get(anidbName).equals(id)) {
+				
+				// get the tvdbID if it is available
+				// only accept Integer values
+				if (animeItem.has(tvdbName)) {
+					
+					Object tvdbId = animeItem.get(tvdbName);
+					if(tvdbId instanceof Integer) {
+						result.put(tvdbName, animeItem.get(tvdbName));
+					}
+				}
+
+				// get the tmdbID if it is available
+				if (animeItem.has(tmdbName)) {
+					result.put(tmdbName, animeItem.get(tmdbName));
+				}
+
+				// get the imdbID if it is available
+				// IMDB Ids start with tt to be valid
+				// pick only the first entry if it is a comma separated list of ids 
+				if (animeItem.has(imdbName)) {
+					Object imdbId = animeItem.get(imdbName);
+					if(imdbId instanceof String && imdbId.toString().startsWith("tt")) {
+						String[] split = imdbId.toString().split(",");
+						result.put(imdbName, split[0]);
+					}
+				}
+			}
+			
+			logger.debug("got IDs from anime-lists-full: " + animeItem.toString());
+		}
+		
+		return result;
+	}
+	
 	
 	/**
 	 * cleaning up the anime-lists JSON Array.

@@ -15,10 +15,11 @@ import org.apache.logging.log4j.Logger;
  */
 public class CommonUtils {
 	
-	private String animeListsUrl = "https://raw.githubusercontent.com/ScudLee/anime-lists/master/anime-list-full.xml";
+	private String animeListsUrl = "https://raw.githubusercontent.com/Anime-Lists/anime-lists/master/anime-list-full.xml";
 	private String animeOfflineDbUrl = "https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json";
 	private String condensedAnimOfflineDBFileName =  "anime-offline-database-reduced.json";
 	private String condensedAnimeListsFileName = "anime-lists-reduced.json";
+	private String animeListFull = "anime-list-full.json";
 	private HashMap<String, String> animeOfflineDbSources = new HashMap<String, String>();
 	private HashMap<String, String> animeListSources = new HashMap<String, String>();
 
@@ -102,5 +103,16 @@ public class CommonUtils {
 		String path = PropertyUtils.getPropertyValue(PropertyUtils.PATH);
 		
 		return path + File.separator + this.condensedAnimeListsFileName;
+	}
+	
+	/**
+	 * get the complete file path for the anime-list-full fule
+	 * 
+	 * @return
+	 */
+	public String getAnimeListFullFilePath() {
+		String path = PropertyUtils.getPropertyValue(PropertyUtils.PATH);
+		
+		return path + File.separator + this.animeListFull;
 	}
 }

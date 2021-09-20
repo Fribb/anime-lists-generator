@@ -27,7 +27,7 @@ public class HTTPUtils {
 	 * @return the content of the response
 	 */
 	public static String getResponse(String urlString) {
-		logger.info("Sending request to " + urlString.toString());
+		logger.debug("Sending request to " + urlString.toString());
 
 		try {
 			URL url = new URL(urlString);
