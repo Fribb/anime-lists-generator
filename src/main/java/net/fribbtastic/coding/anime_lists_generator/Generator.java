@@ -3,24 +3,16 @@
  */
 package net.fribbtastic.coding.anime_lists_generator;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import net.fribbtastic.coding.anime_lists_generator.utils.*;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileCount;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 
-import jdk.internal.org.jline.utils.Log;
-import net.fribbtastic.coding.anime_lists_generator.utils.CommonUtils;
-import net.fribbtastic.coding.anime_lists_generator.utils.FileUtils;
-import net.fribbtastic.coding.anime_lists_generator.utils.HTTPUtils;
-import net.fribbtastic.coding.anime_lists_generator.utils.PropertyUtils;
-import net.fribbtastic.coding.anime_lists_generator.utils.TheMovieDBUtils;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author Fribb
