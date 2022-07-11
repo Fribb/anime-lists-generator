@@ -30,6 +30,8 @@ public class HTTPUtils {
 		logger.debug("Sending request to " + urlString.toString());
 
 		try {
+			Thread.sleep(100);
+
 			URL url = new URL(urlString);
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -57,6 +59,8 @@ public class HTTPUtils {
 
 			return stringBuffer.toString();
 
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted", e);
 		} catch (MalformedURLException e) {
 			logger.error("The URL is malformed", e);
 		} catch (IOException e) {
