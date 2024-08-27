@@ -25,7 +25,7 @@ public class HTTPUtils {
         logger.debug("Sending request to {}", urlString);
 
         try {
-            Thread.sleep(100);
+            Thread.sleep(500);
 
             URL url = new URI(urlString).toURL();
 
