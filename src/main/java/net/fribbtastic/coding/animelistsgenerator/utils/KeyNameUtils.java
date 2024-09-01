@@ -15,7 +15,7 @@ public class KeyNameUtils {
             Map.entry("anidb.net", "anidb"),
             Map.entry("anilist.co", "anilist"),
             Map.entry("anisearch.com", "anisearch"),
-            Map.entry("kitsu.io", "kitsu"),
+            Map.entry("kitsu.app", "kitsu"),
             Map.entry("livechart.me", "livechart"),
             Map.entry("myanimelist.net", "mal"),
 

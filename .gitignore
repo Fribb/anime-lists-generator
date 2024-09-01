@@ -31,7 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
-/anime-lists/
 /src/test/resources/application.properties
 /mvnw
 /mvnw.cmd
+/src/main/resources/application.properties
+
+/anime-lists
