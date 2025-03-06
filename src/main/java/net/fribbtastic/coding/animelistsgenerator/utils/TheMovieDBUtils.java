@@ -86,8 +86,14 @@ public class TheMovieDBUtils {
             JSONObject response = new JSONObject(Objects.requireNonNull(HTTPUtils.getResponse(uri.toASCIIString())));
 
             // get the individual JSON Arrays from the response
-            JSONArray movieResults = response.getJSONArray("movie_results");
-            JSONArray tvResults = response.getJSONArray("tv_results");
+            JSONArray movieResults = new JSONArray();
+            if (response.has("movie_results")) {
+                movieResults = response.getJSONArray("movie_results");
+            }
+            JSONArray tvResults = new JSONArray();
+            if (response.has("tv_results")) {
+                tvResults = response.getJSONArray("tv_results");
+            }
 
             JSONObject resultItem;
 
