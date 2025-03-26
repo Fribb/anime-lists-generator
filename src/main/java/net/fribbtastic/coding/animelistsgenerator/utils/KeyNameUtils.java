@@ -18,6 +18,8 @@ public class KeyNameUtils {
             Map.entry("kitsu.app", "kitsu"),
             Map.entry("livechart.me", "livechart"),
             Map.entry("myanimelist.net", "mal"),
+            Map.entry("simkl.com", "simkl"),
+            Map.entry("animecountdown.com", "animecountdown"),
 
             // anime-planet does not have an ID as integer value but rather uses the title
             Map.entry("anime-planet.com", "anime-planet"),
@@ -54,6 +56,12 @@ public class KeyNameUtils {
      * @return the value of the key with '_id' as suffix
      */
     public static String getValueWithId(String key) {
-        return sourcesNames.get(key) + "_id";
+        String sourceName = sourcesNames.get(key);
+
+        if (sourceName == null) {
+            return null;
+        } else {
+            return sourceName + "_id";
+        }
     }
 }

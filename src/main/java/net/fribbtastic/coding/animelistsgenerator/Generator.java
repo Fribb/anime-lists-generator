@@ -42,7 +42,7 @@ public class Generator {
         JSONArray animeLists = animeListsUtils.getAnimeLists();
 
         // check that the lists actually contain something
-        if (animeOfflineDB == null || animeOfflineDB.isEmpty() | animeLists == null || animeLists.isEmpty()) {
+        if (animeOfflineDB == null || animeOfflineDB.isEmpty() || animeLists == null || animeLists.isEmpty()) {
             logger.error("Lists are empty or there was an error creating them");
             return;
         }

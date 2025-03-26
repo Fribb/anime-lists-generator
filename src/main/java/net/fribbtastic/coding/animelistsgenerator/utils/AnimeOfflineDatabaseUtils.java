@@ -83,10 +83,17 @@ public class AnimeOfflineDatabaseUtils {
                     // if the ID is an integer, then add the ID as an integer to the newItem, otherwise as String
                     if (NumberUtils.isCreatable(id)) {
                         Integer intId = NumberUtils.createInteger(id);
+                        String idName = KeyNameUtils.getValueWithId(host);
 
-                        newItem.put(KeyNameUtils.getValueWithId(host), intId);
+                        if (idName != null) {
+                            newItem.put(KeyNameUtils.getValueWithId(host), intId);
+                        }
                     } else {
-                        newItem.put(KeyNameUtils.getValueWithId(host), id);
+                        String idName = KeyNameUtils.getValueWithId(host);
+
+                        if (idName != null) {
+                            newItem.put(KeyNameUtils.getValueWithId(host), id);
+                        }
                     }
 
                 }catch (URISyntaxException e) {
