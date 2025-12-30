@@ -20,7 +20,7 @@ public class AnimeOfflineDatabaseUtils {
     @SuppressWarnings("FieldCanBeLocal")
     private final String condensedAnimOfflineDBFileName =  "anime-offline-database-reduced.json";
     @SuppressWarnings("FieldCanBeLocal")
-    private final String animeOfflineDBURLString = "https://github.com/manami-project/anime-offline-database/releases/download/latest/anime-offline-database.json";
+    private final String animeOfflineDBURLString = "https://github.com/manami-project/anime-offline-database/releases/download/latest/anime-offline-database-minified.json";
 
     /**
      * get the JSON List of the Anime-Offline-Database containing the individual IDs of the Anime

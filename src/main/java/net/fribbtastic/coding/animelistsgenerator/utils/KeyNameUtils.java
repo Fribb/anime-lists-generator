@@ -32,6 +32,7 @@ public class KeyNameUtils {
             Map.entry("tvdbid", "thetvdb"),
             Map.entry("tmdbid", "themoviedb"),
             Map.entry("imdbid", "imdb"),
+            Map.entry("tmdbtv", "themoviedb"),
 
             // TheMovieDB Key Mapping
             Map.entry("imdb_id", "imdb"),
