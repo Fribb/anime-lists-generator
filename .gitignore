@@ -38,3 +38,5 @@ build/
 
 /anime-lists
 /logs/
+/src/test/resources/files/*.xml
+/src/test/resources/files/*.json
