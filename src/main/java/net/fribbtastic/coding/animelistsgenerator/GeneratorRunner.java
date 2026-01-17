@@ -19,7 +19,7 @@ public class GeneratorRunner implements CommandLineRunner {
     }
 
     @Override
-    public void run(String @NonNull ... args) throws Exception {
+    public void run(String @NonNull ... args) {
         this.generator.generateLists();
     }
 }
