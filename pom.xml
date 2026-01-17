@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>4.0.1</version>
+		<relativePath/> <!-- lookup parent from the repository -->
 	</parent>
 
 	<groupId>net.fribbtastic.coding</groupId>
 	<artifactId>anime-lists-generator</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>anime-lists-generator</name>
 	<description>generator for the anime-lists project</description>
 
@@ -20,6 +20,9 @@
 		<lombok.version>1.18.32</lombok.version>
 		<json.version>20240303</json.version>
 		<apachecommons.version>1.12.0</apachecommons.version>
+		<jackson.version>2.20.1</jackson.version>
+		<jackson-annotation.version>2.20</jackson-annotation.version>
+		<jackson-dataformat.version>3.0.3</jackson-dataformat.version>
 	</properties>
 
 	<dependencies>
@@ -40,6 +43,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-json -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-json</artifactId>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -58,6 +66,24 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>${apachecommons.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/tools.jackson.dataformat/jackson-dataformat-xml -->
+		<dependency>
+			<groupId>tools.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>${jackson-dataformat.version}</version>
 		</dependency>
 
 	</dependencies>

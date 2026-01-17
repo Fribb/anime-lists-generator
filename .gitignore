@@ -37,3 +37,4 @@ build/
 /src/main/resources/application.properties
 
 /anime-lists
+/logs/

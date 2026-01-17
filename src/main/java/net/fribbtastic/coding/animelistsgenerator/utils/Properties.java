@@ -18,9 +18,7 @@ public class Properties {
     }
 
     @Value("${project.apikey.themoviedb}")
-    public void setTheMovieDbApiKey(String theMovieDbApiKey) {
-        Properties.theMovieDbApiKey = theMovieDbApiKey;
+    public void setTheMovieDbApiKey(String apiKey) {
+        theMovieDbApiKey = apiKey;
     }
-
-
 }

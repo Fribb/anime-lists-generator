@@ -2,6 +2,7 @@ package net.fribbtastic.coding.animelistsgenerator.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.*;
 /**
  * @author Frederic Eßer
  */
+@Component
 public class HTTPUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPUtils.class);
@@ -21,7 +23,7 @@ public class HTTPUtils {
      * @param urlString the string of the URL
      * @return the content of the response
      */
-    public static String getResponse(String urlString) {
+    public String getResponse(String urlString) {
         logger.debug("Sending request to {}", urlString);
 
         try {
@@ -34,7 +36,7 @@ public class HTTPUtils {
             int code = connection.getResponseCode();
             BufferedReader reader;
 
-            logger.info("Response Code: {}", code);
+            logger.debug("Response Code: {}", code);
             if (code == HttpURLConnection.HTTP_OK) {
 
                 reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

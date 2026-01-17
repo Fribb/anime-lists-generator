@@ -1,131 +1,121 @@
 package net.fribbtastic.coding.animelistsgenerator;
 
-import net.fribbtastic.coding.animelistsgenerator.utils.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import net.fribbtastic.coding.animelistsgenerator.animeLists.service.AnimeListsService;
+import net.fribbtastic.coding.animelistsgenerator.models.AnimeItem;
+import net.fribbtastic.coding.animelistsgenerator.animeOfflineDatabase.service.AnimeOfflineDatabaseService;
+import net.fribbtastic.coding.animelistsgenerator.themoviedb.service.TheMovieDBService;
+import net.fribbtastic.coding.animelistsgenerator.utils.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.fribbtastic.coding.animelistsgenerator.utils.*;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
-import java.util.Map;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  * @author Frederic Eßer
  */
+@Component
 public class Generator {
 
-    private static final Logger logger = LoggerFactory.getLogger(Generator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Generator.class);
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private final String animeListFull = "anime-list-full.json";
-    @SuppressWarnings("FieldCanBeLocal")
-    private final AnimeListsUtils animeListsUtils;
-    @SuppressWarnings("FieldCanBeLocal")
-    private final TheMovieDBUtils theMovieDBUtils;
-    /**
-     * start the anime-lists generation process
-     */
-    public Generator() {
-        logger.info("starting generating anime-lists");
+    private final AnimeOfflineDatabaseService animeOfflineDatabaseService;
+    private final AnimeListsService animeListsService;
+    private final TheMovieDBService theMovieDBService;
+    private final FileUtils fileUtils;
 
-        logger.info(Properties.projectPath);
-
-        // init utils
-        AnimeOfflineDatabaseUtils animeOfflineDatabaseUtils = new AnimeOfflineDatabaseUtils();
-        this.animeListsUtils = new AnimeListsUtils();
-        this.theMovieDBUtils = new TheMovieDBUtils();
-
-        // get the Anime-Offline-Database as condensed JSONArray
-        JSONArray animeOfflineDB = animeOfflineDatabaseUtils.getAnimeOfflineDB();
-
-        // get the Anime-lists as condensed JSONArray
-        JSONArray animeLists = animeListsUtils.getAnimeLists();
-
-        // check that the lists actually contain something
-        if (animeOfflineDB == null || animeOfflineDB.isEmpty() || animeLists == null || animeLists.isEmpty()) {
-            logger.error("Lists are empty or there was an error creating them");
-            return;
-        }
-
-        // save the individual condensed lists as files
-        FileUtils.writeFile(animeOfflineDB.toString(), animeOfflineDatabaseUtils.getFilePath());
-        FileUtils.writeFile(animeLists.toString(), animeListsUtils.getFilePath());
-
-        // merge both lists and save it as file
-        JSONArray fullList = this.mergeLists(animeOfflineDB, animeLists);
-        FileUtils.writeFile(fullList.toString(), this.getAnimeListsFullFilePath());
+    public Generator(AnimeOfflineDatabaseService animeOfflineDatabaseService, AnimeListsService animeListsService, TheMovieDBService theMovieDBService, FileUtils fileUtils) {
+        this.animeOfflineDatabaseService = animeOfflineDatabaseService;
+        this.animeListsService = animeListsService;
+        this.theMovieDBService = theMovieDBService;
+        this.fileUtils = fileUtils;
     }
 
     /**
-     * get the complete file path for the merged full anime-lists
-     *
-     * @return the file path
+     * Generate the final Anime-lists by using the source lists, condense the information on them and merge them together.
      */
-    private String getAnimeListsFullFilePath() {
-        String path = Properties.projectPath + File.separator + this.animeListFull;
-        logger.info("saving full list to file: {}", path);
+    public void generateLists() {
+        LOGGER.info("starting generating anime-lists");
+        LOGGER.info("Path: {}", Properties.projectPath);
 
-        return path;
+        // create the condensed AnimeOfflineDatabase List
+        ArrayList<AnimeItem> parsedAODBItems = this.animeOfflineDatabaseService.generateList();
+
+        // save the condensed list of AnimeOfflineDatabase items
+        this.fileUtils.writeToFile(parsedAODBItems, Path.of(Properties.projectPath + File.separator + Constants.ANIMEOFFLINEDB_REDUCED));
+
+        // create the condensed anime-lists list
+        ArrayList<AnimeItem> parsedAnimeListsItems = this.animeListsService.generateList();
+
+        // save the condensed list of Anime-Lists items
+        this.fileUtils.writeToFile(parsedAnimeListsItems, Path.of(Properties.projectPath + File.separator + Constants.ANIMELISTS_REDUCED));
+
+        // merge the two lists
+        ArrayList<AnimeItem> mergedList = this.mergeLists(parsedAnimeListsItems, parsedAODBItems);
+        LOGGER.info("Number of merged Items: {}", mergedList.size());
+
+        // request TheMovieDB for IDs if not already available
+        theMovieDBService.appendMissingIds(mergedList);
+
+        // save the merged list with pretty print and minified
+        this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL));
+        this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL_MINIFIED), false);
+
     }
 
     /**
-     * creates and returns a new list of the merged items containing the IDs
-     * it will also look up the IDs on the TheMovieDB API to complete the IDs
+     * merge the two lists together by using the AniDB ID as a key.
      *
-     * @param animeOfflineDB the Anime-Offline-Database List
-     * @param animeLists the anime-lists List
-     * @return returns a {@link JSONArray} containing the IDs of both lists
+     * @param parsedAnimeListsItems the list of parsed Anime-Lists items
+     * @param parsedAODBItems the list of parsed AnimeOfflineDatabase items
+     * @return the sorted and merged list of AnimeItems
      */
-    private JSONArray mergeLists(JSONArray animeOfflineDB, JSONArray animeLists) {
-        logger.info("merging lists");
-        JSONArray results = new JSONArray();
+    public ArrayList<AnimeItem> mergeLists(ArrayList<AnimeItem> parsedAnimeListsItems, ArrayList<AnimeItem> parsedAODBItems) {
+        // create a LinkedHashMap as master to track the Items by AniDB ID and maintain some order
+        Map<Integer, AnimeItem> masterMap = new LinkedHashMap<>();
+        // create an ArrayList for those items that don't have an AniDB ID and that couldn't be merged
+        ArrayList<AnimeItem> noAniDBItems = new ArrayList<>();
 
-        for (Object item : animeOfflineDB) {
-            JSONObject animeItem = (JSONObject) item;
-
-            if (animeItem.has("anidb_id")) {
-                // we can only merge the lists based on the anidb_id
-                Integer anidbID = animeItem.getInt("anidb_id");
-
-                // get the anime-lists item for the anidb ID
-                JSONObject animeListItem = this.animeListsUtils.getAnimeListsItem(anidbID, animeLists);
-
-                // add the IDs to the animeItem
-                for (String key : animeListItem.keySet()) {
-                    animeItem.put(key, animeListItem.get(key));
-                }
-
-                // get the TheMovieDB Entry
-                JSONObject tmdbEntry = null;
-
-                if (animeItem.has("imdb_id") && !animeItem.has("themoviedb_id")) {
-                    // TheMovieDB ID is not available, but we have an IMDB ID
-                    tmdbEntry = this.theMovieDBUtils.findTheMovieDbIdByIMDB(animeItem.getString("imdb_id"));
-
-                } else if (animeItem.has("thetvdb_id") && !animeItem.has("themoviedb_id")) {
-                    // TheMovieDB ID is not available, but we have a TheTVDB ID
-                    tmdbEntry = this.theMovieDBUtils.findTheMovieDbIdByTVDB(animeItem.get("thetvdb_id"));
-                }
-
-                if (tmdbEntry != null) {
-                    // add the TheMovieDB ID to the animeItem
-                    Integer tmdbId = tmdbEntry.getInt("id");
-                    animeItem.put("themoviedb_id", tmdbId);
-
-                    // get the External IDs for the TheMovieDB ID and add all available IDs to the animeItem
-                    Map<String, Object> externalIds = this.theMovieDBUtils.getTheMovieDbExternalIds(tmdbId, tmdbEntry.getString("media_type"));
-
-                    for (String key : externalIds.keySet()) {
-                        Object value = externalIds.get(key);
-
-                        animeItem.put(key, value);
-                    }
-                }
+        // process the AODB items
+        for (AnimeItem aodbItem : parsedAODBItems) {
+            if (aodbItem.getAnidb() != null) {
+                // add the item to the master map
+                masterMap.put(aodbItem.getAnidb(), aodbItem);
+            } else {
+                // or to the list when there is no AniDB ID
+                noAniDBItems.add(aodbItem);
             }
-            results.put(animeItem);
         }
 
-        return results;
-    }
+        // process the anime-lists items
+        for (AnimeItem animeListsItem : parsedAnimeListsItems) {
+            Integer anidbId = animeListsItem.getAnidb();
+            if (anidbId != null) {
+                // there was an AniDB ID, so we can merge the items
+                if (masterMap.containsKey(anidbId)) {
+                    // we found a matching AniDB ID
+                    masterMap.get(anidbId).merge(animeListsItem);
+                } else {
+                    // there was no matching AniDB ID, so we add the item to the master map as a new item
+                    masterMap.put(anidbId, animeListsItem);
+                }
+            } else {
+                // if there is no AniDB ID, we add the item to the "noID" list
+                noAniDBItems.add(animeListsItem);
+            }
+        }
 
+        // combine the lists
+        ArrayList<AnimeItem> mergedList = new ArrayList<>(masterMap.values());
+        // sort the items by anidb ID
+        mergedList.sort(Comparator.comparing(AnimeItem::getAnidb));
+        // add all remaining items that don't have an AniDB ID
+        mergedList.addAll(noAniDBItems);
+
+        return mergedList;
+    }
 }
