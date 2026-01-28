@@ -142,7 +142,8 @@ public class AnimeItem {
 
         // set TMDB season
         if (item.getTmdbseason() != null                    // the tmdbseason needs to be available
-                && !item.getTmdbseason().equals("0")) {     // and can't be set to "0"
+                && !item.getTmdbseason().equals("a")        // and can't be set to "a"
+                /*&& !item.getTmdbseason().equals("0")*/) {     // and can't be set to "0"
 
             season.setTheMovieDb(parseStringToInteger(item.getAnidbid(), "tmdb season", item.getTmdbseason()));
         }
@@ -151,7 +152,7 @@ public class AnimeItem {
         if (item.getDefaulttvdbseason() != null                     // the defaulttvdbseason needs to be available
                 && !item.getTvdbid().equals("movie")                // the tvdb id can't be set to "movie"
                 && !item.getDefaulttvdbseason().equals("a")         // and can't be set to "a"
-                && !item.getDefaulttvdbseason().equals("0")) {      // and can't be set to "0"
+                /*&& !item.getDefaulttvdbseason().equals("0")*/) {      // and can't be set to "0"
 
             season.setThetvdb(parseStringToInteger(item.getAnidbid(), "tvdb season", item.getDefaulttvdbseason()));
         }
