@@ -30,6 +30,16 @@ public class TheMovieDBService {
         LOGGER.info("Appending missing IDs to anime list items");
 
         for (AnimeItem item : itemList) {
+            if (this.shouldIgnoreTmdbId(item)) {
+                LOGGER.warn(
+                        "Item with AniDB ID [{}] is typed as MOVIE but its TMDB ID [{}] came from tmdbtv; ignoring it and re-resolving from external IDs",
+                        item.getAnidb(),
+                        item.getTheMovieDb()
+                );
+                item.setTheMovieDb(null);
+                item.setTmdbIdOrigin(null);
+            }
+
             LOGGER.info("Processing item with TMDB ID: [{}], TVDB ID: [{}], IMDB ID: [{}], Type: [{}]", item.getTheMovieDb(), item.getTvdb(), item.getImdb(), item.getType());
             boolean tmdbId = item.getTheMovieDb() != null;
             boolean tvdbId = item.getTvdb() != null;
@@ -124,6 +134,7 @@ public class TheMovieDBService {
                         // Add the TMDB ID to the item, when available
                         if (foundTmdbID != null) {
                             item.setTheMovieDb(foundTmdbID);
+                            item.setTmdbIdOrigin(null);
 
                             // use the TMDB ID to retrieve the external IDs from the TMDB API
                             this.updateInfoFromTmdb(item, mediaType);
@@ -139,6 +150,12 @@ public class TheMovieDBService {
             }
             LOGGER.info("Finished processing item with TMDB ID: [{}], TVDB ID: [{}], IMDB ID: [{}], Type: [{}]", item.getTheMovieDb(), item.getTvdb(), item.getImdb(), item.getType());
         }
+    }
+
+    private boolean shouldIgnoreTmdbId(AnimeItem item) {
+        return item.getTheMovieDb() != null
+                && "MOVIE".equalsIgnoreCase(item.getType())
+                && item.getTmdbIdOrigin() == AnimeItem.TmdbIdOrigin.TMDB_TV;
     }
 
     /**
