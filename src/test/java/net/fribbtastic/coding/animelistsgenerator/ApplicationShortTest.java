@@ -42,7 +42,7 @@ public class ApplicationShortTest {
         ArrayList<AnimeItem> aodbList = this.animeOfflineDatabaseService.generateList();
 
         Assertions.assertThat(aodbList).isNotNull();
-        Assertions.assertThat(aodbList.size()).isEqualTo(2);
+        Assertions.assertThat(aodbList.size()).isEqualTo(3);
         Assertions.assertThat(aodbList.getFirst()).isNotNull();
         Assertions.assertThat(aodbList.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(aodbList.getFirst().getAnilist()).isEqualTo(290);
@@ -58,7 +58,7 @@ public class ApplicationShortTest {
         ArrayList<AnimeItem> animeListsList = this.animeListsService.generateList();
 
         Assertions.assertThat(animeListsList).isNotNull();
-        Assertions.assertThat(animeListsList.size()).isEqualTo(2);
+        Assertions.assertThat(animeListsList.size()).isEqualTo(3);
         Assertions.assertThat(animeListsList.getFirst()).isNotNull();
         Assertions.assertThat(animeListsList.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(animeListsList.getFirst().getTvdb()).isEqualTo(72025);
