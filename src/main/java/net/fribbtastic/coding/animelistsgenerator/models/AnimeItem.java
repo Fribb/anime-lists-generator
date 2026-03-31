@@ -1,6 +1,5 @@
 package net.fribbtastic.coding.animelistsgenerator.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -19,11 +18,6 @@ import java.util.ArrayList;
 public class AnimeItem {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnimeItem.class);
-
-    public enum TmdbIdOrigin {
-        TMDB_ID,
-        TMDB_TV
-    }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("type")
@@ -76,9 +70,6 @@ public class AnimeItem {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("themoviedb_id")
     private Integer theMovieDb;
-
-    @JsonIgnore
-    private TmdbIdOrigin tmdbIdOrigin;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("tvdb_id")
@@ -138,11 +129,9 @@ public class AnimeItem {
         } else if (tmdbId != null) {
             // this would implicitly mean that tmdbTvId is null
             animeItem.setTheMovieDb(parseStringToInteger(item.getAnidbid(),"tmdb id", tmdbId));
-            animeItem.setTmdbIdOrigin(TmdbIdOrigin.TMDB_ID);
         } else if (tmdbTvId != null) {
             // this would implicitly mean that tmdbId is null
             animeItem.setTheMovieDb(tmdbTvId);
-            animeItem.setTmdbIdOrigin(TmdbIdOrigin.TMDB_TV);
         }
 
         // set TVDB ID
@@ -208,7 +197,6 @@ public class AnimeItem {
         if (this.myanimelist == null) this.myanimelist = other.getMyanimelist();
         if (this.simkl == null) this.simkl = other.getSimkl();
         if (this.theMovieDb == null) this.theMovieDb = other.getTheMovieDb();
-        if (this.tmdbIdOrigin == null) this.tmdbIdOrigin = other.getTmdbIdOrigin();
         if (this.tvdb == null) this.tvdb = other.getTvdb();
 
         if (this.season == null) {
