@@ -1,13 +1,27 @@
 package net.fribbtastic.coding.animelistsgenerator.utils;
 
+import io.github.resilience4j.core.IntervalFunction;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
+import net.fribbtastic.coding.animelistsgenerator.exceptions.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author Frederic Eßer
@@ -15,57 +29,108 @@ import java.net.*;
 @Component
 public class HTTPUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTTPUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HTTPUtils.class);
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
+    private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+
+    private final HttpClient client;
+    private final RateLimiter rateLimiter;
+    private final Retry retry;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private final Integer requestsInWindow = 2;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final Duration requestWindow = Duration.ofSeconds(1);
+
+    public HTTPUtils(HttpClient client) {
+
+        // configure the HTTP Client
+        this.client = client;
+
+        // configure the RateLimiter
+        RateLimiterConfig rateLimiterConfig = RateLimiterConfig.custom()
+                .limitForPeriod(this.requestsInWindow)
+                .limitRefreshPeriod(requestWindow)
+                .timeoutDuration(TIMEOUT)
+                .build();
+
+        this.rateLimiter = RateLimiter.of("anime-list-generator", rateLimiterConfig);
+
+        // configure the retry with exponential backoff
+        IntervalFunction intervalFunction = IntervalFunction.ofExponentialBackoff(500, 2.0);
+
+        RetryConfig retryConfig = RetryConfig.custom()
+                .maxAttempts(4)
+                .intervalFunction(intervalFunction)
+                .ignoreExceptions(NotFoundException.class)
+                .retryExceptions(IOException.class, RuntimeException.class)
+                .build();
+
+        this.retry = Retry.of("anime-list-generator", retryConfig);
+
+        // subscribe to the retry event and log the attempt
+        this.retry.getEventPublisher().onRetry(event -> LOGGER.info("retrying request #{}", event.getNumberOfRetryAttempts()));
+    }
 
     /**
-     * Return the content of a response
+     * get the response of a request for the given URL
      *
-     * @param urlString the string of the URL
-     * @return the content of the response
+     * @param urlString the URL as String
+     * @return the response as String
      */
     public String getResponse(String urlString) {
-        logger.debug("Sending request to {}", urlString);
+        LOGGER.debug("Sending request to {}", urlString);
 
+        Supplier<String> supplier = () -> this.executeRequest(urlString);
+
+        Supplier<String> rateLimited = RateLimiter.decorateSupplier(rateLimiter, supplier);
+        Supplier<String> retriable = Retry.decorateSupplier(retry, rateLimited);
+
+        return retriable.get();
+    }
+
+    /**
+     * execute the request and return the response
+     *
+     * @param urlString the URL as String
+     * @return the response as String
+     */
+    private String executeRequest(String urlString) {
         try {
-            Thread.sleep(500);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlString))
+                    .header("User-Agent", USER_AGENT)
+                    .GET()
+                    .timeout(TIMEOUT)
+                    .build();
 
-            URL url = new URI(urlString).toURL();
+            HttpResponse<InputStream> response = this.client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            int statusCode = response.statusCode();
+            LOGGER.debug("Response Code: {}", statusCode);
 
-            int code = connection.getResponseCode();
-            BufferedReader reader;
-
-            logger.debug("Response Code: {}", code);
-            if (code == HttpURLConnection.HTTP_OK) {
-
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            } else {
-                reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+            if (statusCode == 404) {
+                throw new NotFoundException("Resource not found" + urlString);
+            } else if (statusCode >= 500) {
+                throw new RuntimeException("Server error");
+            } else if (statusCode == 429) {
+                throw new RuntimeException("Rate limit exceeded");
+            } else if (statusCode >= 400) {
+                throw new RuntimeException("Client error; " + statusCode);
             }
 
-            String line;
-            StringBuilder stringBuffer = new StringBuilder();
+            try (InputStream inputStream = response.body();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-            while ((line = reader.readLine()) != null) {
-                stringBuffer.append(line);
+                return reader.lines().collect(Collectors.joining("\n"));
             }
 
-            reader.close();
-            connection.disconnect();
-
-            return stringBuffer.toString();
-
-        } catch (InterruptedException e) {
-            logger.error("Thread interrupted", e);
-        } catch (MalformedURLException e) {
-            logger.error("The URL is malformed", e);
         } catch (IOException e) {
-            logger.error("An error occurred while requesting a response", e);
-        } catch (URISyntaxException e) {
-            logger.error("The URI Syntax is not correct", e);
+            // this triggers a retry
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 }

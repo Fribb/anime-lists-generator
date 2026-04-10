@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.fribbtastic.coding.animelistsgenerator.Constants;
 import net.fribbtastic.coding.animelistsgenerator.animeOfflineDatabase.models.AODB;
+import net.fribbtastic.coding.animelistsgenerator.exceptions.NotFoundException;
 import net.fribbtastic.coding.animelistsgenerator.utils.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +32,15 @@ public class AODBGitHubDataSource implements AnimeOfflineDbDataSource {
     public AODB loadData() {
         LOGGER.info("Loading Data from Source: {}", Constants.ANIMEOFFLINEDB_URL);
 
-        String response = this.httpUtils.getResponse(Constants.ANIMEOFFLINEDB_URL);
-
         try {
+            String response = this.httpUtils.getResponse(Constants.ANIMEOFFLINEDB_URL);
+
             return this.mapper.readValue(response, AODB.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        } catch (NotFoundException e) {
+            LOGGER.error("Request returned 404");
+            return null;
         }
 
     }

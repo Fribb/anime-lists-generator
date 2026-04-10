@@ -1,0 +1,11 @@
+package net.fribbtastic.coding.animelistsgenerator.exceptions;
+
+/**
+ * @author Frederic Eßer
+ */
+public class NotFoundException extends RuntimeException {
+
+    public NotFoundException(String message) {
+        super(message);
+    }
+}

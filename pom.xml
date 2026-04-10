@@ -22,7 +22,8 @@
 		<apachecommons.version>1.12.0</apachecommons.version>
 		<jackson.version>2.20.1</jackson.version>
 		<jackson-annotation.version>2.20</jackson-annotation.version>
-		<jackson-dataformat.version>3.0.3</jackson-dataformat.version>
+		<jackson-dataformat.version>3.1.1</jackson-dataformat.version>
+		<resilience4j.version>2.4.0</resilience4j.version>
 	</properties>
 
 	<dependencies>
@@ -79,7 +80,27 @@
 			<artifactId>jackson-dataformat-xml</artifactId>
 			<version>${jackson-dataformat.version}</version>
 		</dependency>
-
+		<!-- Source: https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-ratelimiter -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-ratelimiter</artifactId>
+			<version>${resilience4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-retry -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-retry</artifactId>
+			<version>${resilience4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-all -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-all</artifactId>
+			<version>${resilience4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

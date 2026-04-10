@@ -3,6 +3,7 @@ package net.fribbtastic.coding.animelistsgenerator.themoviedb.dataSources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.fribbtastic.coding.animelistsgenerator.Constants;
+import net.fribbtastic.coding.animelistsgenerator.exceptions.NotFoundException;
 import net.fribbtastic.coding.animelistsgenerator.themoviedb.model.TmdbFindResult;
 import net.fribbtastic.coding.animelistsgenerator.themoviedb.model.TmdbItem;
 import net.fribbtastic.coding.animelistsgenerator.utils.HTTPUtils;
@@ -51,9 +52,11 @@ public class TmdbApiDataSource implements TheMovieDBDataSource {
             String response = this.httpUtils.getResponse(url);
 
             return this.mapper.readValue(response, TmdbItem.class);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             LOGGER.error("Error loading TheMovieDB item for mediaType {} and id {}", mediaType, id, e);
+            return null;
+        } catch (NotFoundException e) {
+            LOGGER.error("Request returned 404");
             return null;
         }
     }
@@ -81,6 +84,9 @@ public class TmdbApiDataSource implements TheMovieDBDataSource {
             return this.mapper.readValue(response, TmdbFindResult.class);
         } catch (JsonProcessingException e) {
             LOGGER.error("Error loading TheMovieDB item for external ID {} and source {}", lookupId, source, e);
+            return null;
+        } catch (NotFoundException e) {
+            LOGGER.error("Request returned 404");
             return null;
         }
     }
