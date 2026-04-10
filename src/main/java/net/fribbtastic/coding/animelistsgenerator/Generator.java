@@ -1,6 +1,7 @@
 package net.fribbtastic.coding.animelistsgenerator;
 
 import net.fribbtastic.coding.animelistsgenerator.animeLists.service.AnimeListsService;
+import net.fribbtastic.coding.animelistsgenerator.index.IndexService;
 import net.fribbtastic.coding.animelistsgenerator.models.AnimeItem;
 import net.fribbtastic.coding.animelistsgenerator.animeOfflineDatabase.service.AnimeOfflineDatabaseService;
 import net.fribbtastic.coding.animelistsgenerator.themoviedb.service.TheMovieDBService;
@@ -27,12 +28,14 @@ public class Generator {
     private final AnimeListsService animeListsService;
     private final TheMovieDBService theMovieDBService;
     private final FileUtils fileUtils;
+    private final IndexService indexService;
 
-    public Generator(AnimeOfflineDatabaseService animeOfflineDatabaseService, AnimeListsService animeListsService, TheMovieDBService theMovieDBService, FileUtils fileUtils) {
+    public Generator(AnimeOfflineDatabaseService animeOfflineDatabaseService, AnimeListsService animeListsService, TheMovieDBService theMovieDBService, FileUtils fileUtils, IndexService indexService) {
         this.animeOfflineDatabaseService = animeOfflineDatabaseService;
         this.animeListsService = animeListsService;
         this.theMovieDBService = theMovieDBService;
         this.fileUtils = fileUtils;
+        this.indexService = indexService;
     }
 
     /**
@@ -61,10 +64,12 @@ public class Generator {
         // request TheMovieDB for IDs if not already available
         theMovieDBService.appendMissingIds(mergedList);
 
+        Map<String, List<Integer>> indexMap = this.indexService.generateIndex(mergedList);
+
         // save the merged list with pretty print and minified
         this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL));
         this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL_MINIFIED), false);
-
+        this.fileUtils.writeToFile(indexMap, Path.of(Properties.projectPath + File.separator + Constants.INDEX_FILE), true);
     }
 
     /**

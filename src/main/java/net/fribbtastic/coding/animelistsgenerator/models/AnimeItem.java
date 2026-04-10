@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Frederic Eßer
@@ -201,6 +203,44 @@ public class AnimeItem {
 
         if (this.season == null) {
             this.season = other.getSeason();
+        }
+    }
+
+    /**
+     * create the Map of IDs for the AnimeItem
+     *
+     * @return the Map of IDs
+     */
+    public Map<String, String> getIdMap() {
+        Map<String, String> result = new HashMap<>();
+
+        this.putIfNotNull(result, "anidb", this.anidb);
+        this.putIfNotNull(result, "anilist", this.anilist);
+        this.putIfNotNull(result, "animecountdown", this.animeCountdown);
+        this.putIfNotNull(result, "animenewsnetwork", this.animeNewsNetwork);
+        this.putIfNotNull(result, "anime-planet", this.animePlanet);
+        this.putIfNotNull(result, "anisearch", this.anisearch);
+        this.putIfNotNull(result, "imdb", this.imdb);
+        this.putIfNotNull(result, "kitsu", this.kitsu);
+        this.putIfNotNull(result, "livechart", this.livechart);
+        this.putIfNotNull(result, "mal", this.myanimelist);
+        this.putIfNotNull(result, "simkl", this.simkl);
+        this.putIfNotNull(result, "themoviedb", this.theMovieDb);
+        this.putIfNotNull(result, "tvdb", this.tvdb);
+
+        return result;
+    }
+
+    /**
+     * check if the value is not null, then add it to the map
+     *
+     * @param map the map to add the value to
+     * @param key the key to use
+     * @param value the value to add
+     */
+    private void putIfNotNull(Map<String, String> map, String key, Object value) {
+        if (value != null) {
+            map.put(key, String.valueOf(value));
         }
     }
 }
