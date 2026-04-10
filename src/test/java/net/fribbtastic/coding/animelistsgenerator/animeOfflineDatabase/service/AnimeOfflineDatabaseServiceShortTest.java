@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 @SpringBootTest
 @ActiveProfiles("test-short")
-class AnimeOfflineDatabaseServiceSingleTest {
+class AnimeOfflineDatabaseServiceShortTest {
 
     @Autowired
     private AnimeOfflineDatabaseService animeOfflineDatabaseService;
@@ -26,7 +26,7 @@ class AnimeOfflineDatabaseServiceSingleTest {
 
         ArrayList<AnimeItem> list = this.animeOfflineDatabaseService.generateList();
 
-        Assertions.assertThat(list.size()).isEqualTo(1);
+        Assertions.assertThat(list.size()).isEqualTo(3);
         Assertions.assertThat(list.getFirst()).isNotNull();
         Assertions.assertThat(list.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(list.getFirst().getAnilist()).isEqualTo(290);

@@ -66,9 +66,9 @@ class ApplicationFullTest {
 
 		//Assertions.assertThat(mergedList.getFirst().getImdb()).isEqualTo("tt0286390");
 
-		Map<String, List<Integer>> indexMap = this.indexService.generateIndex(mergedList);
+		Map<String, Map<String, List<Integer>>> shardIndexMap = this.indexService.generateIndex(mergedList);
 
-		Assertions.assertThat(indexMap).isNotNull();
+		Assertions.assertThat(shardIndexMap).isNotNull();
 	}
 
 }

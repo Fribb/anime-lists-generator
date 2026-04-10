@@ -1,5 +1,6 @@
 package net.fribbtastic.coding.animelistsgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -211,6 +212,7 @@ public class AnimeItem {
      *
      * @return the Map of IDs
      */
+    @JsonIgnore
     public Map<String, String> getIdMap() {
         Map<String, String> result = new HashMap<>();
 

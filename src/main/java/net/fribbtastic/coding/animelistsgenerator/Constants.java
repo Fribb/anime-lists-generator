@@ -17,5 +17,6 @@ public class Constants {
     public static final String TMDB_URL_EXTERNAL_IDS = "https://api.themoviedb.org/3/${mediaType}/${id}/external_ids?api_key=${apiKey}";
     public static final String TMDB_URL_FIND_BY_EXTERNAL_ID = "https://api.tmdb.org/3/find/${id}?external_source=${source}&api_key=${apiKey}";
 
-    public static final String INDEX_FILE = "index.json";
+    public static final String INDEX_DIRECTORY = "indices";
+    public static final String INDEX_FILENAME_SUFFIX = "_index.json";
 }

@@ -43,13 +43,25 @@ class IndexServiceTest {
         ArrayList<AnimeItem> mergedList = this.generator.mergeLists(animeListsList, aodbList);
         this.theMovieDBService.appendMissingIds(mergedList);
 
-        Map<String, List<Integer>> indexMap = this.indexService.generateIndex(mergedList);
+        Map<String, Map<String, List<Integer>>> shardIndexMap = this.indexService.generateIndex(mergedList);
 
-        Assertions.assertThat(indexMap).isNotNull();
-        Assertions.assertThat(indexMap.size()).isEqualTo(37);
-        Assertions.assertThat(indexMap.get("animecountdown:36462")).isNotNull();
-        Assertions.assertThat(indexMap.get("animecountdown:36462")).hasSize(1);
-        Assertions.assertThat(indexMap.get("animecountdown:36462").getFirst()).isEqualTo(0);
+        Assertions.assertThat(shardIndexMap).isNotNull();
+        Assertions.assertThat(shardIndexMap.size()).isEqualTo(13);
+
+        Assertions.assertThat(shardIndexMap.get("anidb")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("anidb").size()).isEqualTo(3);
+        Assertions.assertThat(shardIndexMap.get("anidb").get("1")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("anidb").get("1").size()).isEqualTo(1);
+
+        Assertions.assertThat(shardIndexMap.get("themoviedb")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("themoviedb").size()).isEqualTo(3);
+        Assertions.assertThat(shardIndexMap.get("themoviedb").get("26209")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("themoviedb").get("26209").size()).isEqualTo(1);
+
+        Assertions.assertThat(shardIndexMap.get("animenewsnetwork")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("animenewsnetwork").size()).isEqualTo(2);
+        Assertions.assertThat(shardIndexMap.get("animenewsnetwork").get("14")).isNotNull();
+        Assertions.assertThat(shardIndexMap.get("animenewsnetwork").get("14").size()).isEqualTo(1);
     }
 
 }

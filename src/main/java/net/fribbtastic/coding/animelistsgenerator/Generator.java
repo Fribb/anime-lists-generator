@@ -39,7 +39,7 @@ public class Generator {
     }
 
     /**
-     * Generate the final Anime-lists by using the source lists, condense the information on them and merge them together.
+     * Generate the final Anime-lists by using the source lists, condense the information on them, and merge them.
      */
     public void generateLists() {
         LOGGER.info("starting generating anime-lists");
@@ -62,18 +62,77 @@ public class Generator {
         LOGGER.info("Number of merged Items: {}", mergedList.size());
 
         // request TheMovieDB for IDs if not already available
-        theMovieDBService.appendMissingIds(mergedList);
+        this.theMovieDBService.appendMissingIds(mergedList);
 
-        Map<String, List<Integer>> indexMap = this.indexService.generateIndex(mergedList);
+        /*
+         shardIndexMap contains the following structure:
+         outer key (first map): the source (mal, tmdb, imdb, tvdb, anidb, anime-planet, etc)
+         inner key (second map): the ID of the item (e.g., mal_id in the merged list)
+         value: the array of indices where that ID can be found in the merged list
+         */
+        Map<String, Map<String, List<Integer>>> shardIndexMap = this.indexService.generateIndex(mergedList);
+        Map<String, Map<String, List<Integer>>> sortedShardIndexMap = this.sortIndices(shardIndexMap);
 
         // save the merged list with pretty print and minified
         this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL));
         this.fileUtils.writeToFile(mergedList, Path.of(Properties.projectPath + File.separator + Constants.ANIME_LISTS_FULL_MINIFIED), false);
-        this.fileUtils.writeToFile(indexMap, Path.of(Properties.projectPath + File.separator + Constants.INDEX_FILE), true);
+        // save one index file for each source
+        for (Map.Entry<String, Map<String, List<Integer>>> shard : sortedShardIndexMap.entrySet()) {
+            String source = shard.getKey();
+
+            this.fileUtils.writeToFile(shard.getValue(), Path.of(Properties.projectPath + File.separator + Constants.INDEX_DIRECTORY + File.separator + source + Constants.INDEX_FILENAME_SUFFIX), true);
+        }
     }
 
     /**
-     * merge the two lists together by using the AniDB ID as a key.
+     * sort the indexes in the index map of the individual shards
+     *
+     * @param shardIndexMap the whole index maps
+     * @return the sorted index maps
+     */
+    private Map<String, Map<String, List<Integer>>> sortIndices(Map<String, Map<String, List<Integer>>> shardIndexMap) {
+
+        Map<String, Map<String, List<Integer>>> result = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, List<Integer>>> shard : shardIndexMap.entrySet()) {
+            String source = shard.getKey();
+            Map<String, List<Integer>> innerMap = shard.getValue();
+
+            List<String> sortedKeys = new ArrayList<>(innerMap.keySet());
+            sortedKeys.sort(this.idComparator());
+
+            Map<String, List<Integer>> sortedInnerMap = new LinkedHashMap<>();
+
+            for (String key : sortedKeys) {
+                sortedInnerMap.put(key, innerMap.get(key));
+            }
+
+            result.put(source, sortedInnerMap);
+        }
+
+        return result;
+    }
+
+    /**
+     * comparator for sorting the IDs to compare them numerically.
+     *
+     * @return the comparator
+     */
+    private Comparator<String> idComparator() {
+        return (a,b) -> {
+            boolean aNum = a.matches("\\d+");
+            boolean bNum = b.matches("\\d+");
+
+            if (aNum && bNum) {
+                return Long.compare(Long.parseLong(a), Long.parseLong(b));
+            }
+
+            return a.compareTo(b);
+        };
+    }
+
+    /**
+     * merge the two lists by using the AniDB ID as a key.
      *
      * @param parsedAnimeListsItems the list of parsed Anime-Lists items
      * @param parsedAODBItems the list of parsed AnimeOfflineDatabase items

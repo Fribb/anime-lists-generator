@@ -23,10 +23,30 @@ public class IndexService {
      * @param mergedList the list containing the merged anime items
      * @return the map of indexes
      */
-    public Map<String, List<Integer>> generateIndex(ArrayList<AnimeItem> mergedList) {
+//    public Map<String, List<Integer>> generateIndex(ArrayList<AnimeItem> mergedList) {
+//        LOGGER.info("Generating index of merged anime lists");
+//
+//        Map<String, List<Integer>> indexMap = new HashMap<>();
+//
+//        // iterate over every item in the merged list
+//        for (int i = 0; i < mergedList.size(); i++) {
+//            AnimeItem item = mergedList.get(i);
+//
+//            // iterate over every available ID in the item
+//            for (Map.Entry<String, String> entry : item.getIdMap().entrySet()) {
+//                String indexKey = entry.getKey() + ":" + entry.getValue();
+//
+//                indexMap.computeIfAbsent(indexKey, k -> new ArrayList<>()).add(i);
+//            }
+//        }
+//
+//        return indexMap;
+//    }
+
+    public Map<String, Map<String, List<Integer>>> generateIndex(ArrayList<AnimeItem> mergedList) {
         LOGGER.info("Generating index of merged anime lists");
 
-        Map<String, List<Integer>> indexMap = new HashMap<>();
+        Map<String, Map<String, List<Integer>>> shardIndexMap = new HashMap<>();
 
         // iterate over every item in the merged list
         for (int i = 0; i < mergedList.size(); i++) {
@@ -34,12 +54,15 @@ public class IndexService {
 
             // iterate over every available ID in the item
             for (Map.Entry<String, String> entry : item.getIdMap().entrySet()) {
-                String indexKey = entry.getKey() + ":" + entry.getValue();
+                String source = entry.getKey(); // e.g. "anidb"
+                String value = entry.getValue(); // e.g. "1"
 
-                indexMap.computeIfAbsent(indexKey, k -> new ArrayList<>()).add(i);
+                shardIndexMap.computeIfAbsent(source, s -> new HashMap<>())
+                        .computeIfAbsent(value, v -> new ArrayList<>())
+                        .add(i);
             }
         }
 
-        return indexMap;
+        return shardIndexMap;
     }
 }
