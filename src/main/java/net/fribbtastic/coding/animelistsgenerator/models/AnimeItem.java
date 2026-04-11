@@ -194,7 +194,13 @@ public class AnimeItem {
         if (this.animeNewsNetwork == null) this.animeNewsNetwork = other.getAnimeNewsNetwork();
         if (this.animePlanet == null) this.animePlanet = other.getAnimePlanet();
         if (this.anisearch == null) this.anisearch = other.getAnisearch();
-        if (this.imdb == null) this.imdb = other.getImdb();
+        // The IMDB ID from the anime-lists source can be a comma-separated list
+        // If this is the case, we ignore it and instead rely on the TMDB API to provide it through the external IDs instead
+        if (this.imdb == null) {
+            if (other.getImdb() != null && !other.getImdb().contains(",")) {
+                this.imdb = other.getImdb();
+            }
+        }
         if (this.kitsu == null) this.kitsu = other.getKitsu();
         if (this.livechart == null) this.livechart = other.getLivechart();
         if (this.myanimelist == null) this.myanimelist = other.getMyanimelist();
