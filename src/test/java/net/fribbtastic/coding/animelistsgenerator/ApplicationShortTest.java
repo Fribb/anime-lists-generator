@@ -48,7 +48,7 @@ public class ApplicationShortTest {
         ArrayList<AnimeItem> aodbList = this.animeOfflineDatabaseService.generateList();
 
         Assertions.assertThat(aodbList).isNotNull();
-        Assertions.assertThat(aodbList.size()).isEqualTo(5);
+        Assertions.assertThat(aodbList.size()).isEqualTo(6);
         Assertions.assertThat(aodbList.getFirst()).isNotNull();
         Assertions.assertThat(aodbList.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(aodbList.getFirst().getAnilist()).isEqualTo(290);
@@ -64,7 +64,7 @@ public class ApplicationShortTest {
         ArrayList<AnimeItem> animeListsList = this.animeListsService.generateList();
 
         Assertions.assertThat(animeListsList).isNotNull();
-        Assertions.assertThat(animeListsList.size()).isEqualTo(5);
+        Assertions.assertThat(animeListsList.size()).isEqualTo(6);
         Assertions.assertThat(animeListsList.getFirst()).isNotNull();
         Assertions.assertThat(animeListsList.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(animeListsList.getFirst().getTvdb()).isEqualTo(72025);
@@ -117,7 +117,7 @@ public class ApplicationShortTest {
         Assertions.assertThat(collections).isNotNull();
         Assertions.assertThat(collections.size()).isEqualTo(9); // number of sources
         Assertions.assertThat(collections.get("anidb")).isNotNull();
-        Assertions.assertThat(collections.get("anidb").size()).isEqualTo(53); // number of collections
+        Assertions.assertThat(collections.get("anidb").size()).isEqualTo(66); // number of collections
         Assertions.assertThat(collections.get("anidb").getFirst().getName()).isEqualTo("Seikai no Monshou");
     }
 }

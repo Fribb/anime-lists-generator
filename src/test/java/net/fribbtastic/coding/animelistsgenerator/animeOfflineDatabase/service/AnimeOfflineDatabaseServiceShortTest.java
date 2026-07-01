@@ -26,7 +26,7 @@ class AnimeOfflineDatabaseServiceShortTest {
 
         ArrayList<AnimeItem> list = this.animeOfflineDatabaseService.generateList();
 
-        Assertions.assertThat(list.size()).isEqualTo(4);
+        Assertions.assertThat(list.size()).isEqualTo(6);
         Assertions.assertThat(list.getFirst()).isNotNull();
         Assertions.assertThat(list.getFirst().getAnidb()).isEqualTo(1);
         Assertions.assertThat(list.getFirst().getAnilist()).isEqualTo(290);
