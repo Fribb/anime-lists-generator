@@ -5,7 +5,7 @@ package net.fribbtastic.coding.animelistsgenerator;
  */
 public class Constants {
 
-    public static final String ANIMEOFFLINEDB_URL = "https://github.com/manami-project/anime-offline-database/releases/download/latest/anime-offline-database-minified.json";
+    public static final String ANIMEOFFLINEDB_URL = "https://github.com/cedya77/anime-offline-database/releases/download/latest/anime-offline-database-minified.json";
     public static final String ANIMEOFFLINEDB_REDUCED = "anime-offline-database-reduced.json";
 
     public static final String ANIMELISTS_URL = "https://raw.githubusercontent.com/Anime-Lists/anime-lists/refs/heads/master/anime-list-full.xml";
