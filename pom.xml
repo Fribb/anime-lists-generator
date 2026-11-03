@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.6</version>
+		<version>4.1.2</version>
 		<relativePath/> <!-- lookup parent from the repository -->
 	</parent>
 
@@ -20,9 +20,9 @@
 		<lombok.version>1.18.32</lombok.version>
 		<json.version>20240303</json.version>
 		<apachecommons.version>1.12.0</apachecommons.version>
-		<jackson.version>2.22.2</jackson.version>
+		<jackson.version>2.22.4</jackson.version>
 		<jackson-annotation.version>2.20</jackson-annotation.version>
-		<jackson-dataformat.version>3.1.1</jackson-dataformat.version>
+		<jackson-dataformat.version>3.2.4</jackson-dataformat.version>
 		<resilience4j.version>2.4.0</resilience4j.version>
 	</properties>
 
