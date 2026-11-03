@@ -20,7 +20,7 @@ public class AODBItem {
     private String type;
 
     @JsonProperty("relatedAnime")
-    private ArrayList<String> relatedAnime;
+    private ArrayList<AODBRelatedAnime> relatedAnime;
 
     @JsonProperty("title")
     private String title;

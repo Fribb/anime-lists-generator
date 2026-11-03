@@ -1,5 +1,7 @@
 package net.fribbtastic.coding.animelistsgenerator.themoviedb.service;
 
+import net.fribbtastic.coding.animelistsgenerator.utils.Properties;
+
 import net.fribbtastic.coding.animelistsgenerator.models.AnimeItem;
 import net.fribbtastic.coding.animelistsgenerator.models.TheMovieDBItem;
 import net.fribbtastic.coding.animelistsgenerator.themoviedb.dataSources.TheMovieDBDataSource;
@@ -29,6 +31,10 @@ public class TheMovieDBService {
     }
 
     public void appendMissingIds(ArrayList<AnimeItem> itemList) {
+        if (Properties.theMovieDbApiKey == null || Properties.theMovieDbApiKey.isBlank()) {
+            LOGGER.warn("No TMDB API key configured (project.apikey.themoviedb) - skipping the TMDB ID lookup");
+            return;
+        }
         LOGGER.info("Appending missing IDs to anime list items");
 
         for (AnimeItem item : itemList) {

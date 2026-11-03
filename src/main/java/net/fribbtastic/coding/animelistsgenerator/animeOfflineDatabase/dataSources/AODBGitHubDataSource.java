@@ -6,6 +6,8 @@ import net.fribbtastic.coding.animelistsgenerator.Constants;
 import net.fribbtastic.coding.animelistsgenerator.animeOfflineDatabase.models.AODB;
 import net.fribbtastic.coding.animelistsgenerator.exceptions.NotFoundException;
 import net.fribbtastic.coding.animelistsgenerator.utils.HTTPUtils;
+import net.fribbtastic.coding.animelistsgenerator.utils.Properties;
+import net.fribbtastic.coding.animelistsgenerator.utils.SourceFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -30,12 +32,24 @@ public class AODBGitHubDataSource implements AnimeOfflineDbDataSource {
 
     @Override
     public AODB loadData() {
+        String file = Properties.localFile(Properties.animeOfflineDatabaseFile, Constants.ANIMEOFFLINEDB_FILE);
+        if (file != null) {
+            LOGGER.info("Loading Data from local file: {}", file);
+            try {
+                return this.mapper.readValue(SourceFiles.read(file, "anime-offline-database.file"), AODB.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("could not parse " + file, e);
+            }
+        }
+
         LOGGER.info("Loading Data from Source: {}", Constants.ANIMEOFFLINEDB_URL);
 
         try {
             String response = this.httpUtils.getResponse(Constants.ANIMEOFFLINEDB_URL);
+            AODB data = this.mapper.readValue(response, AODB.class);
+            SourceFiles.save(Constants.ANIMEOFFLINEDB_FILE, response);
 
-            return this.mapper.readValue(response, AODB.class);
+            return data;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (NotFoundException e) {

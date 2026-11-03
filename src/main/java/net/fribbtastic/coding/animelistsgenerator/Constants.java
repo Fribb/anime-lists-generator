@@ -20,6 +20,11 @@ public class Constants {
     public static final String INDEX_DIRECTORY = "indices";
     public static final String INDEX_FILENAME_SUFFIX = "_index.json";
 
+    /** downloaded source files are saved here (inside project.path), and read from here when not downloading */
+    public static final String SOURCE_DIRECTORY = "source";
+    public static final String ANIMEOFFLINEDB_FILE = "anime-offline-database-minified.json";
+    public static final String ANIMELISTS_FILE = "anime-list-full.xml";
+
     public static final String COLLECTION_DIRECTORY = "collections";
     public static final String COLLECTION_FILENAME_SUFFIX = "_collection.json";
 }

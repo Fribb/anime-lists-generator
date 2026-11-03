@@ -87,6 +87,7 @@ public class AnimeOfflineDatabaseService {
             // set the relations
             if (item.getRelatedAnime() != null && !item.getRelatedAnime().isEmpty()) {
                 newItem.setRelations(this.relationParser.parseRelations(item.getRelatedAnime()));
+                newItem.setRelationTypes(this.relationParser.parseRelationTypes(item.getRelatedAnime()));
             }
 
             // add the new Item to the List

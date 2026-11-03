@@ -4,10 +4,12 @@ import net.fribbtastic.coding.animelistsgenerator.Constants;
 import net.fribbtastic.coding.animelistsgenerator.animeLists.models.AnimeLists;
 import net.fribbtastic.coding.animelistsgenerator.exceptions.NotFoundException;
 import net.fribbtastic.coding.animelistsgenerator.utils.HTTPUtils;
+import net.fribbtastic.coding.animelistsgenerator.utils.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import net.fribbtastic.coding.animelistsgenerator.utils.SourceFiles;
 import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
@@ -29,12 +31,20 @@ public class AnimeListsGitHubDataSource implements  AnimeListsDataSource{
 
     @Override
     public AnimeLists loadData() {
+        String file = Properties.localFile(Properties.animeListsFile, Constants.ANIMELISTS_FILE);
+        if (file != null) {
+            LOGGER.info("Loading Data from local file: {}", file);
+            return mapper.readValue(SourceFiles.read(file, "anime-lists.file"), AnimeLists.class);
+        }
+
         LOGGER.info("Loading Data from Source: {}", Constants.ANIMELISTS_URL);
 
         try {
             String response = this.httpUtils.getResponse(Constants.ANIMELISTS_URL);
+            AnimeLists data = mapper.readValue(response, AnimeLists.class);
+            SourceFiles.save(Constants.ANIMELISTS_FILE, response);
 
-            return mapper.readValue(response, AnimeLists.class);
+            return data;
         } catch (NotFoundException e) {
             LOGGER.error("Request returned 404");
             return null;

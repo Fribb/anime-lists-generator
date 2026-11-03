@@ -90,6 +90,10 @@ public class AnimeItem {
     @JsonIgnore
     private transient String title;
 
+    /** kind of relation per source and related ID, normalised (see RelationParser), only where the provider names it */
+    @JsonIgnore
+    private transient Map<String, Map<String, String>> relationTypes;
+
     /**
      * Set the IDs by parsing the individual Source URLs
      *

@@ -1,3 +1,22 @@
 spring.application.name=anime-lists-generator
 project.path=
 project.apikey.themoviedb=
+
+# --- source data ---
+# true = download anime-offline-database and anime-list-full.xml (saved to <project.path>/source/),
+# false = read the local files below
+data.download=true
+# local anime-offline-database-minified.json (empty = the saved download)
+anime-offline-database.file=
+# local anime-list-full.xml from Anime-Lists (empty = the saved download)
+anime-lists.file=
+
+# --- collections ---
+# kinds of relation that don't join two anime into one collection, as the meta data
+# providers label them (case, "_" and "-" don't matter; empty = every relation joins).
+# Needs an anime-offline-database with relation types in "relatedAnime".
+collection.excluded-relations=crossover,other,shared universe,character
+# put groups which were only cut off by excluded relations (spin-offs, shorts, specials) back into
+# their collection, as long as they touch just that one collection; a group touching several
+# collections (a crossover) stays on its own
+collection.rejoin-single-neighbour=true
